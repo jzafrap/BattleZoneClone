@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Combat Zone</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-container">
+    <div id="hud-panel">
+      <div id="radar-container">
+        <canvas id="radar-canvas" width="200" height="110"></canvas>
+        <div id="radar-label">RADAR</div>
+      </div>
+      <div id="hud-info">
+        <div class="hud-row">
+          <span class="hud-label">SCORE</span>
+          <span id="score">000000</span>
+        </div>
+        <div class="hud-row">
+          <span class="hud-label">LIVES</span>
+          <span id="lives">3</span>
+        </div>
+        <div class="hud-row">
+          <span class="hud-label">ENEMIES</span>
+          <span id="enemy-count">0</span>
+        </div>
+      </div>
+      <div id="hud-title">
+        <span>COMBAT ZONE</span>
+      </div>
+    </div>
+    <div id="viewport">
+      <canvas id="game-canvas" width="800" height="500"></canvas>
+      <div id="overlay" class="hidden">
+        <div id="overlay-text"></div>
+        <div id="overlay-sub"></div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

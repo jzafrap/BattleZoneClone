@@ -1,0 +1,137 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Courier New', Courier, monospace;
+  overflow: hidden;
+}
+
+#game-container {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #cc0000;
+  box-shadow: 0 0 20px #cc0000, 0 0 40px #660000;
+}
+
+#hud-panel {
+  background: #1a0000;
+  border-bottom: 2px solid #cc0000;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  gap: 20px;
+  position: relative;
+}
+
+#radar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+#radar-canvas {
+  border: 1px solid #cc0000;
+  background: #000;
+  box-shadow: 0 0 8px #cc0000 inset;
+}
+
+#radar-label {
+  color: #cc0000;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 6px #cc0000;
+}
+
+#hud-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.hud-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-label {
+  color: #880000;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.hud-row span:last-child {
+  color: #ff3333;
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-shadow: 0 0 8px #ff0000, 0 0 16px #880000;
+}
+
+#hud-title {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #cc0000;
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px #ff0000;
+  text-align: center;
+}
+
+#viewport {
+  position: relative;
+  background: #000;
+}
+
+#game-canvas {
+  display: block;
+  background: #000;
+}
+
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.75);
+  gap: 20px;
+}
+
+#overlay.hidden {
+  display: none;
+}
+
+#overlay-text {
+  color: #ff0000;
+  font-size: 48px;
+  font-weight: bold;
+  letter-spacing: 6px;
+  text-shadow: 0 0 20px #ff0000, 0 0 40px #880000;
+  text-align: center;
+}
+
+#overlay-sub {
+  color: #ff6666;
+  font-size: 18px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px #ff0000;
+  text-align: center;
+}
