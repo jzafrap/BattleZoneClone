@@ -6,9 +6,13 @@ export function worldToCamera(worldPt, playerPos, playerAngle) {
   const dx = worldPt.x - playerPos.x;
   const dz = worldPt.z - playerPos.z;
   const a = playerAngle;
+  // cam+X = vector derecho de la cámara = (cos a, -sin a) en mundo
+  // cam+Z = vector adelante de la cámara = (sin a,  cos a) en mundo
+  // cam.x = proyección de (dx,dz) sobre el eje derecho
+  // cam.z = proyección de (dx,dz) sobre el eje adelante
   return {
-    x: dx * Math.cos(-a) - dz * Math.sin(-a),
-    z: dx * Math.sin(-a) + dz * Math.cos(-a),
+    x:  dx * Math.cos(a) - dz * Math.sin(a),
+    z:  dx * Math.sin(a) + dz * Math.cos(a),
     y: worldPt.y - (playerPos.y || 0)
   };
 }
