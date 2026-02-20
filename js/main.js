@@ -9,8 +9,8 @@ import { ProjectileSystem } from './projectile.js';
 import { initInput, isFirePressed, isRestartPressed, consumeFrameInput } from './input.js';
 
 // ── Configuración ────────────────────────────────────────────────────────────
-const MAX_ENEMIES = 4;
-const MIN_ENEMIES = 2;
+const MAX_ENEMIES = 1;
+const MIN_ENEMIES = 1;
 const DEAD_RESPAWN_DELAY = 2.0; // segundos hasta respawn del jugador
 const MISSILE_SPAWN_SCORE = 3;  // cada N kills aparece un misil
 
