@@ -5,10 +5,13 @@ import { worldToCamera, vec3RotateY, distance2D, lerpAngle } from './math3d.js';
 import { drawSegment3D } from './renderer.js';
 import { checkCollision } from './world.js';
 
+// Velocidad del tanque enemigo: ~8 veces más lenta que el jugador (MAX_SPEED=55)
+const TANK_SPEED = 7;
+const TANK_TURN  = 0.8;  // rad/s — giro lento y torpe
+
 // Distancias de transición de estado
-const DIST_DETECT = 400;
-const DIST_ATTACK = 250;
-const DIST_RETREAT = 80;
+const DIST_DETECT = 220;  // detecta al jugador a 220 u
+const DIST_ATTACK = 160;  // entra en modo disparo a 160 u
 
 // Modelo wireframe del tanque (coordenadas locales)
 const TANK_SEGMENTS = (() => {
@@ -89,13 +92,15 @@ export class Enemy {
     this.alive = true;
     this.state = 'patrol';
 
-    // Patrol
-    this.patrolTimer = 0;
-    this.patrolAngle = this.angle;
+    // Waypoint patrol
+    this.waypointX = x;
+    this.waypointZ = z;
+    this.idleTimer = 0;      // tiempo de pausa en el waypoint
+    this._pickNewWaypoint();
 
     // Attack
     this.shootTimer = 0;
-    this.shootCooldown = 2.0;
+    this.shootCooldown = 3.0; // dispara con menos frecuencia
   }
 
   get pos() {
@@ -122,60 +127,66 @@ export class Enemy {
     this.z += Math.cos(this.angle) * speed * dt;
   }
 
+  _pickNewWaypoint() {
+    // Elige un punto aleatorio a 40-90 unidades del tanque
+    const a = Math.random() * Math.PI * 2;
+    const d = 40 + Math.random() * 50;
+    this.waypointX = this.x + Math.cos(a) * d;
+    this.waypointZ = this.z + Math.sin(a) * d;
+  }
+
   _updateTank(dt, playerPos, toPlayerAngle, dist, projectileSystem) {
+    // Transiciones de estado según distancia al jugador
     if (dist > DIST_DETECT) {
       this.state = 'patrol';
-    } else if (dist < DIST_RETREAT) {
-      this.state = 'retreat';
     } else if (dist < DIST_ATTACK) {
       this.state = 'attack';
     } else {
       this.state = 'approach';
     }
 
-    const TANK_SPEED = 35;
-    const TANK_TURN = 1.5;
-
     switch (this.state) {
       case 'patrol': {
-        this.patrolTimer -= dt;
-        if (this.patrolTimer <= 0) {
-          this.patrolTimer = 2 + Math.random() * 3;
-          this.patrolAngle = Math.random() * Math.PI * 2;
+        // Pausa en el waypoint actual
+        if (this.idleTimer > 0) {
+          this.idleTimer -= dt;
+          break;
         }
-        this.angle = lerpAngle(this.angle, this.patrolAngle, TANK_TURN * dt);
-        this._moveForward(dt, TANK_SPEED * 0.5);
+        // ¿Llegó al waypoint?
+        const dx = this.waypointX - this.x;
+        const dz = this.waypointZ - this.z;
+        const distWP = Math.sqrt(dx * dx + dz * dz);
+        if (distWP < 8) {
+          // Pausa breve (0.5-2s) antes de elegir siguiente waypoint
+          this.idleTimer = 0.5 + Math.random() * 1.5;
+          this._pickNewWaypoint();
+          break;
+        }
+        // Girar y avanzar hacia el waypoint
+        const wpAngle = Math.atan2(dx, dz);
+        this.angle = lerpAngle(this.angle, wpAngle, TANK_TURN * dt);
+        this._moveForward(dt, TANK_SPEED);
         break;
       }
 
       case 'approach': {
+        // Se acerca lentamente, sin prisa
         this.angle = lerpAngle(this.angle, toPlayerAngle, TANK_TURN * dt);
         this._moveForward(dt, TANK_SPEED);
         break;
       }
 
       case 'attack': {
-        this.angle = lerpAngle(this.angle, toPlayerAngle, TANK_TURN * 1.5 * dt);
+        // Gira para apuntar, dispara si está alineado
+        this.angle = lerpAngle(this.angle, toPlayerAngle, TANK_TURN * dt);
         const aimDiff = Math.abs(this._angleDiff(this.angle, toPlayerAngle));
         this.shootTimer -= dt;
-        if (aimDiff < 0.3 && this.shootTimer <= 0) {
+        if (aimDiff < 0.45 && this.shootTimer <= 0) {
           this.shootTimer = this.shootCooldown;
           projectileSystem.spawn(this.pos, this.angle, 'enemy');
         }
+        // Se mueve muy poco al atacar
         this._moveForward(dt, TANK_SPEED * 0.3);
-        break;
-      }
-
-      case 'retreat': {
-        const fleeAngle = toPlayerAngle + Math.PI;
-        this.angle = lerpAngle(this.angle, fleeAngle, TANK_TURN * dt);
-        this._moveForward(dt, TANK_SPEED * 0.8);
-        this.shootTimer -= dt;
-        if (this.shootTimer <= 0) {
-          this.shootTimer = this.shootCooldown * 1.5;
-          // Disparar hacia el jugador mientras huye
-          projectileSystem.spawn(this.pos, toPlayerAngle, 'enemy');
-        }
         break;
       }
     }
